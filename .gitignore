@@ -1,0 +1,7 @@
+results/
+pretrained_models/
+*.pth
+*.pt
+*.pdf
+*.eps
+update_repo.sh

@@ -7,7 +7,7 @@ from einops import rearrange
 
 
 def make_model(args, parent=False):
-    return MOENet()
+    return SFAN()
 
 ##########################################################################
 ## Resizing modules
@@ -69,6 +69,7 @@ class GateNetwork(nn.Module):
 
         # Pass the masked tensor through softmax to get gating coefficients for each expert network
         gating_coeffs = self.softmax(x)
+        # print("============gating_coeffs",gating_coeffs)
 
         return gating_coeffs
 
@@ -324,7 +325,6 @@ class Chanel_Cross_Attention(nn.Module):
         self.q = nn.Conv2d(dim, dim, kernel_size=1, bias=bias)
         self.q_dwconv = nn.Conv2d(dim, dim, kernel_size=3, stride=1, padding=1, groups=dim, bias=bias)
 
-
         self.kv = nn.Conv2d(dim, dim*2, kernel_size=1, bias=bias)
         self.kv_dwconv = nn.Conv2d(dim*2, dim*2, kernel_size=3, stride=1, padding=1, groups=dim*2, bias=bias)
 
@@ -491,7 +491,7 @@ class DFLB(nn.Module):
 
         return high, low
 
-class MOENet(nn.Module):
+class SFAN(nn.Module):
     def __init__(self, 
         inp_channels=3, 
         out_channels=3, 
@@ -502,7 +502,7 @@ class MOENet(nn.Module):
         decoder = True
     ):
 
-        super(MOENet, self).__init__()
+        super(SFAN, self).__init__()
 
         self.first = nn.Conv2d(inp_channels, dim, 3, 1, 1)
 
@@ -590,13 +590,11 @@ class MOENet(nn.Module):
 
         return out_dec_level1
 
-
 if __name__ == '__main__':
-    model = MOENet()
+    model = SFAN()
     x = torch.randn(1, 3, 256, 256)
     out = model(x)
     from thop import profile
     flops, params = profile(model, inputs=(x,))
     print('Params and FLOPs are {}M/{}G'.format(params/1e6, flops/1e9))
-
 
